@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            text-align: center;
+        }
+        .game-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #question {
+            font-size: 1.5em;
+            color: #555;
+            margin-bottom: 25px;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .option-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .option-btn:hover {
+            background-color: #0056b3;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .restart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+            display: none; /* Initially hidden */
+        }
+        .restart-btn:hover {
+            background-color: #218838;
+        }
+        #level-counter {
+            font-size: 1.1em;
+            color: #777;
+            margin-bottom: 15px;
+        }
+        
+        /* New styling for the Back to Main button */
+        .back-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px; /* Add some space above */
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Math Quiz Game</h1>
+	<p>Note : All games is created by R.N.K Studio</p>
+    <div id="level-counter">Level: 1/100</div>
+    <div id="question"></div>
+    <div class="options-container">
+        <button class="option-btn" onclick="checkAnswer(0)"></button>
+        <button class="option-btn" onclick="checkAnswer(1)"></button>
+        <button class="option-btn" onclick="checkAnswer(2)"></button>
+        <button class="option-btn" onclick="checkAnswer(3)"></button>
+    </div>
+    <div id="message"></div>
+    <button class="restart-btn" onclick="restartGame()">Restart</button>
+    <a href="Index2.html" class="back-btn">Back to Main</a>
+</div>
+
+<script>
+    let currentLevel = 1;
+    let correctAnswer = 0;
+    const maxLevels = 100;
+
+    const questionEl = document.getElementById('question');
+    const optionBtns = document.querySelectorAll('.option-btn');
+    const messageEl = document.getElementById('message');
+    const restartBtn = document.querySelector('.restart-btn');
+    const levelCounterEl = document.getElementById('level-counter');
+    const optionsContainer = document.querySelector('.options-container');
+
+    function generateQuestion() {
+        const operators = ['+', '-', '*', '/'];
+        const operator = operators[Math.floor(Math.random() * operators.length)];
+        let num1, num2, answer;
+        const difficultyFactor = Math.floor(currentLevel / 10) + 1; // Increases difficulty every 10 levels
+
+        if (operator === '+') {
+            num1 = Math.floor(Math.random() * (10 * difficultyFactor));
+            num2 = Math.floor(Math.random() * (10 * difficultyFactor));
+            answer = num1 + num2;
+        } else if (operator === '-') {
+            num1 = Math.floor(Math.random() * (20 * difficultyFactor));
+            num2 = Math.floor(Math.random() * num1);
+            answer = num1 - num2;
+        } else if (operator === '*') {
+            num1 = Math.floor(Math.random() * (5 + difficultyFactor));
+            num2 = Math.floor(Math.random() * (5 + difficultyFactor));
+            answer = num1 * num2;
+        } else { // Division
+            num2 = Math.floor(Math.random() * (5 + difficultyFactor)) + 1;
+            answer = Math.floor(Math.random() * (5 + difficultyFactor)) + 1;
+            num1 = num2 * answer;
+        }
+
+        questionEl.textContent = `Level ${currentLevel}: What is ${num1} ${operator} ${num2}?`;
+        correctAnswer = answer;
+        generateOptions(answer);
+    }
+
+    function generateOptions(correctAnswer) {
+        const options = new Set();
+        options.add(correctAnswer);
+        while (options.size < 4) {
+            const incorrectAnswer = correctAnswer + Math.floor(Math.random() * 11) - 5;
+            if (incorrectAnswer !== correctAnswer) {
+                options.add(incorrectAnswer);
+            }
+        }
+        const shuffledOptions = Array.from(options).sort(() => Math.random() - 0.5);
+        optionBtns.forEach((btn, index) => {
+            btn.textContent = shuffledOptions[index];
+        });
+    }
+
+    function checkAnswer(selectedIndex) {
+        const selectedAnswer = parseInt(optionBtns[selectedIndex].textContent);
+        if (selectedAnswer === correctAnswer) {
+            messageEl.textContent = "Correct!";
+            currentLevel++;
+            if (currentLevel > maxLevels) {
+                endGame(true);
+            } else {
+                levelCounterEl.textContent = `Level: ${currentLevel}/${maxLevels}`;
+                setTimeout(generateQuestion, 1000); // Delay for a moment before next question
+            }
+        } else {
+            messageEl.textContent = "Incorrect! Game Over.";
+            endGame(false);
+        }
+    }
+
+    function endGame(isWinner) {
+        optionsContainer.style.display = 'none';
+        questionEl.style.display = 'none';
+        levelCounterEl.style.display = 'none';
+        if (isWinner) {
+            messageEl.textContent = "Congratulations! You completed all 100 levels!";
+            messageEl.style.color = 'green';
+        } else {
+            messageEl.textContent += ` The correct answer was ${correctAnswer}.`;
+            messageEl.style.color = 'red';
+        }
+        restartBtn.style.display = 'block';
+    }
+
+    function restartGame() {
+        currentLevel = 1;
+        messageEl.textContent = "";
+        messageEl.style.color = '#333';
+        levelCounterEl.textContent = `Level: ${currentLevel}/${maxLevels}`;
+        optionsContainer.style.display = 'grid';
+        questionEl.style.display = 'block';
+        levelCounterEl.style.display = 'block';
+        restartBtn.style.display = 'none';
+        generateQuestion();
+    }
+
+    // Start the game for the first time
+    generateQuestion();
+</script>
+
+</body>
+</html>

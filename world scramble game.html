@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Word Scramble Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e6f7ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .game-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #005f99;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #333;
+            font-size: 1.1em;
+        }
+        .scrambled-word {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ff6347;
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+        #user-input {
+            padding: 10px;
+            font-size: 1.2em;
+            width: 70%;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .game-buttons button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .btns {
+            background-color: #28a745;
+            color: white;
+        }
+        .btns:hover {
+            background-color: #218838;
+        }
+        #next-btn {
+            background-color: #007bff;
+            color: white;
+            display: none; /* Initially hidden */
+        }
+        #next-btn:hover {
+            background-color: #0056b3;
+        }
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .correct {
+            color: #28a745;
+        }
+        .incorrect {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Word Scramble</h1>
+    <p>Unscramble the letters to find the correct word.</p>
+	<p>Note : All games is created by R.N.K Studio</p>
+    <div class="scrambled-word" id="scrambled-word"></div>
+    <input type="text" id="user-input" placeholder="Enter your word here">
+    <div class="game-buttons">
+        <button id="check-btn" class="btns">Check</button>
+		<button onclick="window.location.href='Index2.html'" class="btns">Back to Main</button>
+        <button id="next-btn">Next Word</button>
+    </div>
+    <div id="message"></div>
+</div>
+
+<script>
+    const words = ["COMPUTER", "PROGRAMMING", "JAVASCRIPT", "DEVELOPER", "INTERNET", "WEBSITE"];
+    let currentWord = "";
+    let scrambledWord = "";
+    let messageElement = document.getElementById('message');
+    const scrambledWordDisplay = document.getElementById('scrambled-word');
+    const userInput = document.getElementById('user-input');
+    const checkBtn = document.getElementById('check-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    // Function to shuffle the letters of a word
+    function shuffleWord(word) {
+        let array = word.split('');
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array.join('');
+    }
+
+    // Function to start a new game/word
+    function startNewWord() {
+        // Get a random word from the words array
+        currentWord = words[Math.floor(Math.random() * words.length)].toUpperCase();
+        scrambledWord = shuffleWord(currentWord);
+
+        // Display the scrambled word
+        scrambledWordDisplay.textContent = scrambledWord;
+
+        // Reset input and message
+        userInput.value = "";
+        messageElement.textContent = "";
+        nextBtn.style.display = 'none';
+        checkBtn.style.display = 'inline-block';
+    }
+
+    // Function to check the user's answer
+    function checkAnswer() {
+        const userGuess = userInput.value.toUpperCase();
+
+        if (userGuess === currentWord) {
+            messageElement.textContent = "Correct! You got it!";
+            messageElement.className = "correct";
+            checkBtn.style.display = 'none';
+            nextBtn.style.display = 'inline-block';
+        } else {
+            messageElement.textContent = "Incorrect. Try again!";
+            messageElement.className = "incorrect";
+        }
+    }
+
+    // Event listeners for the buttons
+    checkBtn.addEventListener('click', checkAnswer);
+    nextBtn.addEventListener('click', startNewWord);
+
+    // Start the first word when the page loads
+    startNewWord();
+</script>
+
+</body>
+</html>

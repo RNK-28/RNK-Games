@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2575fc;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            background-color: #6a11cb;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .category-btn:hover {
+            background-color: #2575fc;
+            transform: translateY(-3px);
+        }
+        
+        .category-btn.selected {
+            background-color: #ff5252;
+            transform: scale(1.05);
+        }
+        
+        .game-area {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .hangman-container {
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+        
+        .word-display {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .letter {
+            width: 40px;
+            height: 40px;
+            border-bottom: 3px solid #2575fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #6a11cb;
+        }
+        
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+        }
+        
+        .letter-btn {
+            background-color: #6a11cb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+        
+        .letter-btn:hover:not(:disabled) {
+            background-color: #2575fc;
+        }
+        
+        .letter-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .wrong {
+            background-color: #ff5252;
+        }
+        
+        .correct {
+            background-color: #4caf50;
+        }
+        
+        .message {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 40px;
+            color: #2575fc;
+        }
+        
+        .reset-btn {
+            background-color: #ff5252;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .reset-btn:hover {
+            background-color: #ff0000;
+            transform: scale(1.05);
+        }
+        
+        .hint-btn {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .hint-btn:hover {
+            background-color: #f57c00;
+        }
+        
+        .hint-text {
+            margin: 15px 0;
+            font-style: italic;
+            color: #6a11cb;
+            min-height: 20px;
+        }
+        
+        .instructions {
+            background-color: rgba(106, 17, 203, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .keyboard {
+                grid-template-columns: repeat(7, 1fr);
+            }
+            
+            .letter {
+                width: 30px;
+                height: 30px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hangman Game</h1>
+        
+        <div class="categories">
+            <button class="category-btn" data-category="fruits">Fruits</button>
+            <button class="category-btn" data-category="countries">Countries</button>
+            <button class="category-btn" data-category="animals">Animals</button>
+			<button onclick="window.location.href='Index2.html'" class="category-btn">Back to Main</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <p>1. Select a category to start the game</p>
+            <p>2. Guess the word by selecting letters from the keyboard</p>
+            <p>3. You have 7 wrong guesses before you lose</p>
+            <p>4. Use the hint button if you need help</p>
+			<p>Note : All games is created by R.N.K Studio</p>
+        </div>
+        
+        <div class="game-area">
+            <div class="hangman-container">
+                <svg id="hangman-svg" width="200" height="200" viewBox="0 0 200 200">
+                    <line x1="20" y1="180" x2="100" y2="180" stroke="black" stroke-width="4" />
+                    <line x1="60" y1="180" x2="60" y2="20" stroke="black" stroke-width="4" />
+                    <line x1="60" y1="20" x2="140" y2="20" stroke="black" stroke-width="4" />
+                    <line x1="140" y1="20" x2="140" y2="40" stroke="black" stroke-width="3" id="rope" style="display: none;" />
+                    <circle cx="140" cy="55" r="15" stroke="black" stroke-width="3" fill="transparent" id="head" style="display: none;" />
+                    <line x1="140" y1="70" x2="140" y2="110" stroke="black" stroke-width="3" id="body" style="display: none;" />
+                    <line x1="140" y1="80" x2="120" y2="90" stroke="black" stroke-width="3" id="left-arm" style="display: none;" />
+                    <line x1="140" y1="80" x2="160" y2="90" stroke="black" stroke-width="3" id="right-arm" style="display: none;" />
+                    <line x1="140" y1="110" x2="120" y2="130" stroke="black" stroke-width="3" id="left-leg" style="display: none;" />
+                    <line x1="140" y1="110" x2="160" y2="130" stroke="black" stroke-width="3" id="right-leg" style="display: none;" />
+                </svg>
+            </div>
+            
+            <div class="word-display" id="word-display"></div>
+            
+            <div class="hint-text" id="hint-text"></div>
+            
+            <div class="message" id="message"></div>
+            
+            <div>
+                <button class="hint-btn" id="hint-btn">Hint</button>
+                <button class="reset-btn" id="reset-btn">Reset Game</button>
+            </div>
+            
+            <div class="keyboard" id="keyboard"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Game data
+            const words = {
+                fruits: [
+                    { word: "APPLE", hint: "Keeps the doctor away" },
+                    { word: "BANANA", hint: "Yellow and curved" },
+                    { word: "ORANGE", hint: "Both a color and a fruit" },
+                    { word: "MANGO", hint: "King of fruits" },
+                    { word: "GRAPES", hint: "Used to make wine" },
+                    { word: "PINEAPPLE", hint: "Spiky tropical fruit" },
+                    { word: "WATERMELON", hint: "Summer fruit with seeds" },
+                    { word: "STRAWBERRY", hint: "Red with seeds on the outside" },
+                    { word: "BLUEBERRY", hint: "Small and antioxidant-rich" },
+                    { word: "PEACH", hint: "Fuzzy stone fruit" }
+                ],
+                countries: [
+                    { word: "INDIA", hint: "Taj Mahal is located here" },
+                    { word: "USA", hint: "World's largest economy" },
+                    { word: "CANADA", hint: "Known for maple syrup" },
+                    { word: "AUSTRALIA", hint: "Home to kangaroos" },
+                    { word: "JAPAN", hint: "Land of the rising sun" },
+                    { word: "BRAZIL", hint: "Largest country in South America" },
+                    { word: "EGYPT", hint: "Pyramids of Giza" },
+                    { word: "FRANCE", hint: "Eiffel Tower" },
+                    { word: "GERMANY", hint: "Famous for cars and beer" },
+                    { word: "ITALY", hint: "Shape of a boot" }
+                ],
+                animals: [
+                    { word: "ELEPHANT", hint: "Has a trunk" },
+                    { word: "TIGER", hint: "National animal of India" },
+                    { word: "LION", hint: "King of the jungle" },
+                    { word: "GIRAFFE", hint: "Long neck" },
+                    { word: "ZEBRA", hint: "Black and white stripes" },
+                    { word: "KANGAROO", hint: "Has a pouch" },
+                    { word: "PANDA", hint: "Black and white bear" },
+                    { word: "EAGLE", hint: "Majestic bird of prey" },
+                    { word: "CROCODILE", hint: "Large reptile with strong jaws" },
+                    { word: "DOLPHIN", hint: "Intelligent marine mammal" }
+                ]
+            };
+            
+            // Game elements
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            const gameArea = document.querySelector('.game-area');
+            const wordDisplay = document.getElementById('word-display');
+            const keyboard = document.getElementById('keyboard');
+            const message = document.getElementById('message');
+            const resetBtn = document.getElementById('reset-btn');
+            const hintBtn = document.getElementById('hint-btn');
+            const hintText = document.getElementById('hint-text');
+            
+            // Game state
+            let selectedCategory = '';
+            let selectedWord = '';
+            let guessedLetters = [];
+            let wrongGuesses = 0;
+            let maxWrongGuesses = 7; // Changed to 7 so the game ends after both legs are drawn
+            
+            // Initialize the keyboard
+            function initKeyboard() {
+                keyboard.innerHTML = '';
+                for (let i = 65; i <= 90; i++) {
+                    const letter = String.fromCharCode(i);
+                    const button = document.createElement('button');
+                    button.className = 'letter-btn';
+                    button.textContent = letter;
+                    button.dataset.letter = letter;
+                    button.addEventListener('click', () => handleGuess(letter));
+                    keyboard.appendChild(button);
+                }
+            }
+            
+            // Select category
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    categoryButtons.forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                    selectedCategory = button.dataset.category;
+                    startGame();
+                });
+            });
+            
+            // Start the game
+            function startGame() {
+                // Reset game state
+                guessedLetters = [];
+                wrongGuesses = 0;
+                message.textContent = '';
+                hintText.textContent = '';
+                
+                // Hide all hangman parts
+                document.querySelectorAll('#rope, #head, #body, #left-arm, #right-arm, #left-leg, #right-leg')
+                    .forEach(part => part.style.display = 'none');
+                
+                // Select a random word from the category
+                const categoryWords = words[selectedCategory];
+                const randomIndex = Math.floor(Math.random() * categoryWords.length);
+                selectedWord = categoryWords[randomIndex].word;
+                
+                // Display word as blanks
+                wordDisplay.innerHTML = '';
+                for (let i = 0; i < selectedWord.length; i++) {
+                    const letterElement = document.createElement('div');
+                    letterElement.className = 'letter';
+                    letterElement.textContent = '_';
+                    letterElement.dataset.letter = selectedWord[i];
+                    wordDisplay.appendChild(letterElement);
+                }
+                
+                // Enable all keyboard buttons
+                document.querySelectorAll('.letter-btn').forEach(button => {
+                    button.disabled = false;
+                    button.className = 'letter-btn';
+                });
+                
+                // Show game area
+                gameArea.style.display = 'block';
+                
+                // Set hint
+                hintText.textContent = `Hint: ${words[selectedCategory][randomIndex].hint}`;
+            }
+            
+            // Handle letter guess
+            function handleGuess(letter) {
+                // If letter was already guessed, do nothing
+                if (guessedLetters.includes(letter)) return;
+                
+                // Add to guessed letters
+                guessedLetters.push(letter);
+                
+                // Disable the button
+                const button = document.querySelector(`.letter-btn[data-letter="${letter}"]`);
+                button.disabled = true;
+                
+                // Check if letter is in the word
+                if (selectedWord.includes(letter)) {
+                    button.classList.add('correct');
+                    
+                    // Update the displayed word
+                    document.querySelectorAll('.letter').forEach(element => {
+                        if (element.dataset.letter === letter) {
+                            element.textContent = letter;
+                        }
+                    });
+                    
+                    // Check if player has won
+                    if (isWordGuessed()) {
+                        message.textContent = 'Congratulations! You won!';
+                        message.style.color = '#4caf50';
+                        disableKeyboard();
+                    }
+                } else {
+                    button.classList.add('wrong');
+                    wrongGuesses++;
+                    updateHangman();
+                    
+                    // Check if player has lost
+                    if (wrongGuesses >= maxWrongGuesses) {
+                        message.textContent = `Game Over! The word was: ${selectedWord}`;
+                        message.style.color = '#ff5252';
+                        revealWord();
+                        disableKeyboard();
+                    }
+                }
+            }
+            
+            // Check if the word has been completely guessed
+            function isWordGuessed() {
+                return Array.from(document.querySelectorAll('.letter'))
+                    .every(element => element.textContent !== '_');
+            }
+            
+            // Disable the keyboard
+            function disableKeyboard() {
+                document.querySelectorAll('.letter-btn').forEach(button => {
+                    button.disabled = true;
+                });
+            }
+            
+            // Reveal the word when game is lost
+            function revealWord() {
+                document.querySelectorAll('.letter').forEach(element => {
+                    element.textContent = element.dataset.letter;
+                });
+            }
+            
+            // Update the hangman drawing
+            function updateHangman() {
+                const parts = [
+                    'rope', 'head', 'body', 
+                    'left-arm', 'right-arm', 
+                    'left-leg', 'right-leg'
+                ];
+                
+                if (wrongGuesses > 0 && wrongGuesses <= parts.length) {
+                    document.getElementById(parts[wrongGuesses - 1]).style.display = 'block';
+                }
+            }
+            
+            // Reset the game
+            resetBtn.addEventListener('click', () => {
+                if (selectedCategory) {
+                    startGame();
+                }
+            });
+            
+            // Show hint
+            hintBtn.addEventListener('click', () => {
+                hintText.style.display = hintText.style.display === 'none' ? 'block' : 'block';
+            });
+            
+            // Initialize the keyboard on page load
+            initKeyboard();
+        });
+    </script>
+</body>
+</html>

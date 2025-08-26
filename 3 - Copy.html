@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Word Memory Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            color: #444;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        
+        h3 {
+            color: #555;
+            margin: 20px 0 10px;
+            font-size: 1.4rem;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #6e8efb, #a777e3);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin: 15px 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(110, 142, 251, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(110, 142, 251, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-restart {
+            background: linear-gradient(to right, #4CAF50, #2E7D32);
+        }
+        
+        .btn-main-menu {
+            background: linear-gradient(to right, #9C27B0, #7B1FA2);
+        }
+        
+        #countdown {
+            font-size: 5rem;
+            color: #a777e3;
+            margin: 40px 0;
+        }
+        
+        #word-display {
+            font-size: 3rem;
+            color: #333;
+            margin: 40px 0;
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #game-board {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .word-item {
+            background-color: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .word-item:hover {
+            background-color: #e0e0ff;
+            transform: translateY(-2px);
+        }
+        
+        .correct {
+            background-color: #4caf50 !important;
+            color: white;
+        }
+        
+        .incorrect {
+            background-color: #f44336 !important;
+            color: white;
+        }
+        
+        #timer {
+            font-size: 2rem;
+            color: #333;
+            margin: 20px 0;
+        }
+        
+        #result {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 30px 0;
+            min-height: 70px;
+        }
+        
+        .win {
+            color: #4caf50;
+        }
+        
+        .lose {
+            color: #f44336;
+        }
+        
+        .screen {
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #6e8efb, #a777e3);
+            width: 100%;
+            transition: width 1s linear;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option-group {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-width: 250px;
+        }
+        
+        .option-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.2rem;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px 0;
+        }
+        
+        .option:hover {
+            border-color: #6e8efb;
+            background-color: #f0f4ff;
+        }
+        
+        .option.selected {
+            border-color: #6e8efb;
+            background-color: #e0e8ff;
+        }
+        
+        .option input {
+            margin-right: 10px;
+        }
+        
+        .score-display {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            color: #333;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            #word-display {
+                font-size: 2.5rem;
+            }
+            
+            #countdown {
+                font-size: 4rem;
+            }
+            
+            .options-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 1.1rem;
+                margin: 10px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Word Memory Challenge</h1>
+            <p>Remember the words that flash on the screen, then select them from the list before time runs out!</p>
+            
+            <div class="options-container">
+                <div class="option-group">
+                    <div class="option-title">Word Display Speed</div>
+                    <label class="option selected">
+                        <input type="radio" name="speed" value="500" checked> 0.5 seconds
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="speed" value="1000"> 1 second
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="speed" value="1500"> 1.5 seconds
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="speed" value="2000"> 2 seconds
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="speed" value="2500"> 2.5 seconds
+                    </label>
+                </div>
+                
+                <div class="option-group">
+                    <div class="option-title">Game Duration</div>
+                    <label class="option selected">
+                        <input type="radio" name="duration" value="30" checked> 30 seconds
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="duration" value="60"> 1 minute
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="duration" value="90"> 1 minute 30 seconds
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="duration" value="120"> 2 minutes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="duration" value="150"> 2 minutes 30 seconds
+                    </label>
+                </div>
+                
+                <div class="option-group">
+                    <div class="option-title">Number of Words</div>
+                    <label class="option selected">
+                        <input type="radio" name="wordCount" value="4" checked> 4 words
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="wordCount" value="6"> 6 words
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="wordCount" value="8"> 8 words
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="wordCount" value="10"> 10 words
+                    </label>
+                </div>
+            </div>
+            
+            <button id="start-btn" class="btn">Start Game</button>
+			<button onclick="window.location.href='Index2.html'" class="btn">Back to Main</button>
+			<P>All games is created by R.N.K Studio</P>
+        </div>
+        
+        <!-- Countdown Screen -->
+        <div id="countdown-screen" class="screen">
+            <h2>Get Ready!</h2>
+            <div id="countdown">3</div>
+        </div>
+        
+        <!-- Word Display Screen -->
+        <div id="word-display-screen" class="screen">
+            <h2>Remember these words:</h2>
+            <div id="word-display"></div>
+            <div class="progress-bar">
+                <div class="progress" id="word-progress"></div>
+            </div>
+        </div>
+        
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <h2>Select the words you saw!</h2>
+            <div id="timer">Time left: 60s</div>
+            <div class="progress-bar">
+                <div class="progress" id="timer-progress"></div>
+            </div>
+            <div class="score-display" id="score-display">Words found: 0/6</div>
+            <div id="game-board"></div>
+        </div>
+        
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen">
+            <h2>Game Over</h2>
+            <div id="result"></div>
+            <div class="score-display" id="final-score">You found 0 out of 6 words</div>
+            <button id="restart-btn" class="btn btn-restart">Play Again</button>
+            <button id="main-menu-btn" class="btn btn-main-menu">Main Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        const allWords = [
+            'Apple', 'Banana', 'Mango', 'Cherry', 'Pakistan', 'India', 'China', 'Germany', 'Dog', 'Cat', 
+			'Lion', 'Tiger', 'Elephant', 'Monkey', 'Deer', 'Rabbit', 'Bear', 'Wolf', 'Fox', 'Snake', 'Parrot',
+			'Crow', 'Eagle', 'Sparrow', 'Pigeon', 'Duck', 'Owl', 'Goat', 'Sheep', 'Cow',
+        ];
+        
+        let targetWords = [];
+        let selectedWords = [];
+        let remainingTime = 60;
+        let timerInterval;
+        let wordDisplayCount = 6;
+        let currentWordIndex = 0;
+        let displaySpeed = 1000;
+        let gameDuration = 60;
+        let wordsFound = 0;
+        
+        // DOM elements
+        const startScreen = document.getElementById('start-screen');
+        const countdownScreen = document.getElementById('countdown-screen');
+        const wordDisplayScreen = document.getElementById('word-display-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const countdownElement = document.getElementById('countdown');
+        const wordDisplayElement = document.getElementById('word-display');
+        const gameBoardElement = document.getElementById('game-board');
+        const timerElement = document.getElementById('timer');
+        const resultElement = document.getElementById('result');
+        const timerProgress = document.getElementById('timer-progress');
+        const wordProgress = document.getElementById('word-progress');
+        const scoreDisplayElement = document.getElementById('score-display');
+        const finalScoreElement = document.getElementById('final-score');
+        
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const mainMenuBtn = document.getElementById('main-menu-btn');
+        
+        // Initialize option selections
+        function initializeOptions() {
+            // Add event listeners to options
+            document.querySelectorAll('input[name="speed"]').forEach(option => {
+                option.addEventListener('change', (e) => {
+                    updateOptionSelection(e.target, 'speed');
+                });
+            });
+            
+            document.querySelectorAll('input[name="duration"]').forEach(option => {
+                option.addEventListener('change', (e) => {
+                    updateOptionSelection(e.target, 'duration');
+                });
+            });
+            
+            document.querySelectorAll('input[name="wordCount"]').forEach(option => {
+                option.addEventListener('change', (e) => {
+                    updateOptionSelection(e.target, 'wordCount');
+                });
+            });
+            
+            // Main menu button
+            mainMenuBtn.addEventListener('click', () => {
+                showScreen(startScreen);
+            });
+        }
+        
+        // Update option selection UI
+        function updateOptionSelection(selectedOption, optionName) {
+            // Update UI to show selected option
+            document.querySelectorAll(`input[name="${optionName}"]`).forEach(opt => {
+                opt.parentElement.classList.remove('selected');
+            });
+            selectedOption.parentElement.classList.add('selected');
+        }
+        
+        // Start game button
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+        
+        // Start the game
+        function startGame() {
+            // Reset game state
+            targetWords = [];
+            selectedWords = [];
+            wordsFound = 0;
+            currentWordIndex = 0;
+            
+            // Get selected options
+            const selectedSpeed = document.querySelector('input[name="speed"]:checked');
+            const selectedDuration = document.querySelector('input[name="duration"]:checked');
+            const selectedWordCount = document.querySelector('input[name="wordCount"]:checked');
+            
+            displaySpeed = parseInt(selectedSpeed.value);
+            gameDuration = parseInt(selectedDuration.value);
+            wordDisplayCount = parseInt(selectedWordCount.value);
+            remainingTime = gameDuration;
+            
+            // Select random words from the list
+            while (targetWords.length < wordDisplayCount) {
+                const randomIndex = Math.floor(Math.random() * allWords.length);
+                const word = allWords[randomIndex];
+                if (!targetWords.includes(word)) {
+                    targetWords.push(word);
+                }
+            }
+            
+            // Show countdown screen
+            showScreen(countdownScreen);
+            startCountdown();
+        }
+        
+        // Show countdown from 3 to 1
+        function startCountdown() {
+            let count = 3;
+            countdownElement.textContent = count;
+            
+            const countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownElement.textContent = count;
+                } else {
+                    clearInterval(countdownInterval);
+                    showScreen(wordDisplayScreen);
+                    displayWords();
+                }
+            }, 1000);
+        }
+        
+        // Display words one by one
+        function displayWords() {
+            if (currentWordIndex < wordDisplayCount) {
+                wordDisplayElement.textContent = targetWords[currentWordIndex];
+                wordProgress.style.width = `${(currentWordIndex / wordDisplayCount) * 100}%`;
+                
+                setTimeout(() => {
+                    currentWordIndex++;
+                    displayWords();
+                }, displaySpeed);
+            } else {
+                showScreen(gameScreen);
+                initGameBoard();
+                startGameTimer();
+            }
+        }
+        
+        // Initialize the game board with words
+        function initGameBoard() {
+            gameBoardElement.innerHTML = '';
+            
+            // Create a shuffled copy of all words
+            const shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
+            
+            // Add the target words and some additional words to make 30
+            const gameWords = [...targetWords];
+            for (let i = 0; gameWords.length < 30 && i < shuffledWords.length; i++) {
+                if (!gameWords.includes(shuffledWords[i])) {
+                    gameWords.push(shuffledWords[i]);
+                }
+            }
+            
+            // Shuffle the game words
+            gameWords.sort(() => Math.random() - 0.5);
+            
+            // Create word elements
+            gameWords.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'word-item';
+                wordElement.textContent = word;
+                wordElement.addEventListener('click', () => selectWord(word, wordElement));
+                gameBoardElement.appendChild(wordElement);
+            });
+            
+            timerElement.textContent = `Time left: ${remainingTime}s`;
+            timerProgress.style.width = '100%';
+            scoreDisplayElement.textContent = `Words found: ${wordsFound}/${wordDisplayCount}`;
+        }
+        
+        // Start the game timer
+        function startGameTimer() {
+            clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                timerElement.textContent = `Time left: ${remainingTime}s`;
+                timerProgress.style.width = `${(remainingTime / gameDuration) * 100}%`;
+                
+                if (remainingTime <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+        
+        // Handle word selection
+        function selectWord(word, element) {
+            // If word already selected, do nothing
+            if (selectedWords.includes(word)) return;
+            
+            // Add to selected words
+            selectedWords.push(word);
+            
+            // Check if it's a target word
+            if (targetWords.includes(word)) {
+                element.classList.add('correct');
+                wordsFound++;
+                scoreDisplayElement.textContent = `Words found: ${wordsFound}/${wordDisplayCount}`;
+                
+                // Check if all target words have been found
+                const allFound = targetWords.every(targetWord => 
+                    selectedWords.includes(targetWord)
+                );
+                
+                if (allFound) {
+                    endGame(true);
+                }
+            } else {
+                element.classList.add('incorrect');
+                endGame(false);
+            }
+        }
+        
+        // End the game
+        function endGame(isWin) {
+            clearInterval(timerInterval);
+            showScreen(resultScreen);
+            
+            if (isWin) {
+                resultElement.textContent = 'You Win!';
+                resultElement.className = 'win';
+            } else {
+                resultElement.textContent = 'You Lose!';
+                resultElement.className = 'lose';
+            }
+            
+            finalScoreElement.textContent = `You found ${wordsFound} out of ${wordDisplayCount} words`;
+        }
+        
+        // Helper function to show a specific screen
+        function showScreen(screen) {
+            // Hide all screens
+            startScreen.classList.remove('active');
+            countdownScreen.classList.remove('active');
+            wordDisplayScreen.classList.remove('active');
+            gameScreen.classList.remove('active');
+            resultScreen.classList.remove('active');
+            
+            // Show the requested screen
+            screen.classList.add('active');
+        }
+        
+        // Initialize the game
+        initializeOptions();
+    </script>
+</body>
+</html>

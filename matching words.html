@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Match Game</title>
+    <style>
+        /* CSS will go here */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .game-container {
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #game-board {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #4CAF50;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: bold;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .card .front-face {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .card .back-face {
+            background-color: #fff;
+            color: #333;
+            transform: rotateY(180deg);
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .card.matched {
+            background-color: #8BC34A;
+            cursor: default;
+        }
+
+        .info {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #next-level-btn {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">Word Match Game</h1>
+		<p>Note : All games is created by R.N.K Studio</p>
+        <div class="info">
+            <span id="level">Level: 1</span> | <span id="moves">Moves: 0</span>
+        </div>
+        <div id="game-board"></div>
+        <button id="next-level-btn">Next Level</button>
+    </div>
+
+    <button onclick="window.location.href='Index2.html'">Back to Main</button>
+
+    <script>
+        // JavaScript will go here
+        const gameBoard = document.getElementById('game-board');
+        const levelDisplay = document.getElementById('level');
+        const movesDisplay = document.getElementById('moves');
+        const nextLevelBtn = document.getElementById('next-level-btn');
+
+        let words = [];
+        let cards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let level = 1;
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+
+        const allWords = [
+            'apple', 'banana', 'cherry', 'grape', 'lemon', 'mango', 'orange', 'pear', 'strawberry', 'watermelon',
+            'car', 'bus', 'train', 'plane', 'boat', 'bike', 'ship', 'truck', 'taxi', 'scooter',
+            'cat', 'dog', 'bird', 'fish', 'rabbit', 'mouse', 'lion', 'tiger', 'bear', 'wolf',
+            'sun', 'moon', 'star', 'cloud', 'rain', 'wind', 'snow', 'storm', 'sky', 'earth',
+            'blue', 'red', 'green', 'yellow', 'purple', 'black', 'white', 'pink', 'brown', 'gray',
+            'book', 'pen', 'paper', 'desk', 'chair', 'lamp', 'door', 'window', 'clock', 'table',
+            'happy', 'sad', 'angry', 'excited', 'tired', 'bored', 'calm', 'brave', 'shy', 'funny',
+            'run', 'jump', 'walk', 'swim', 'sing', 'dance', 'read', 'write', 'eat', 'sleep',
+            'tree', 'flower', 'leaf', 'root', 'branch', 'forest', 'mountain', 'river', 'lake', 'ocean',
+            'house', 'building', 'bridge', 'road', 'city', 'town', 'village', 'country', 'world', 'continent'
+        ];
+
+        function generateWordsForLevel(lvl) {
+            const pairs = 2 + Math.floor(lvl / 2); // Start with 2 pairs, increase every 2 levels
+            const numWords = Math.min(pairs, allWords.length);
+            const selectedWords = allWords.slice(0, numWords);
+            
+            let levelWords = [...selectedWords, ...selectedWords];
+            
+            // For levels above 10, start adding more pairs, but cap the grid size.
+            if (lvl > 10) {
+                const extraPairs = Math.min(lvl - 10, 15); // Add up to 15 more pairs
+                const extraWords = allWords.slice(numWords, numWords + extraPairs);
+                levelWords.push(...extraWords, ...extraWords);
+            }
+            
+            return levelWords;
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createBoard() {
+            lockBoard = false;
+            firstCard = null;
+            secondCard = null;
+            matchedPairs = 0;
+            moves = 0;
+            movesDisplay.textContent = `Moves: ${moves}`;
+            levelDisplay.textContent = `Level: ${level}`;
+            nextLevelBtn.style.display = 'none';
+
+            words = shuffle(generateWordsForLevel(level));
+            gameBoard.innerHTML = '';
+            
+            const gridSize = Math.sqrt(words.length);
+            gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            gameBoard.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+
+            words.forEach(word => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.dataset.word = word;
+                
+                const frontFace = document.createElement('div');
+                frontFace.classList.add('card-face', 'front-face');
+                frontFace.textContent = '?';
+
+                const backFace = document.createElement('div');
+                backFace.classList.add('card-face', 'back-face');
+                backFace.textContent = word;
+
+                cardElement.appendChild(frontFace);
+                cardElement.appendChild(backFace);
+                cardElement.addEventListener('click', flipCard);
+                gameBoard.appendChild(cardElement);
+                cards.push(cardElement);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('flipped');
+            moves++;
+            movesDisplay.textContent = `Moves: ${moves}`;
+
+            if (!firstCard) {
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.word === secondCard.dataset.word;
+            isMatch ? disableCards() : unflipCards();
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            firstCard.classList.add('matched');
+            secondCard.classList.add('matched');
+            matchedPairs++;
+
+            if (matchedPairs === words.length / 2) {
+                endLevel();
+            }
+
+            resetBoard();
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [firstCard, secondCard, lockBoard] = [null, null, false];
+        }
+
+        function endLevel() {
+            alert(`Level ${level} complete! You did it in ${moves} moves.`);
+            if (level < 60) {
+                level++;
+                nextLevelBtn.style.display = 'block';
+            } else {
+                alert("Congratulations! You've completed all 60 levels!");
+            }
+        }
+
+        nextLevelBtn.addEventListener('click', () => {
+            createBoard();
+        });
+
+        // Initialize the game
+        createBoard();
+    </script>
+</body>
+</html>
